@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+  selenium:
+    build:
+      context: .
+      dockerfile: selenium.dockerfile
+    ports:
+      - "4444:4444"
+  etherscan:
+    build:
+      context: .
+      dockerfile: etherscan.dockerfile
