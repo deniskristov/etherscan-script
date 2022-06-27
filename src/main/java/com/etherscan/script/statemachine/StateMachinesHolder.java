@@ -3,6 +3,8 @@ package com.etherscan.script.statemachine;
 import com.etherscan.script.utils.StateContextVariables;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.stereotype.Component;
@@ -70,6 +72,13 @@ public class StateMachinesHolder
             {
                 log.error("Persisting state machine error:", e);
             }
+        });
+    }
+
+    public void sendToAll(Message message)
+    {
+        stateMachineMap.values().forEach(stateMachine -> {
+            stateMachine.sendEvent(message);
         });
     }
 

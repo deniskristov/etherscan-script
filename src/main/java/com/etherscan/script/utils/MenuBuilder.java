@@ -4,18 +4,8 @@ import com.etherscan.script.statemachine.Events;
 
 public class MenuBuilder
 {
-    public static Object[] setContractButton()
+    public static Object[] checkCurrentContracts()
     {
-        return new Object[]{"Указать контракт", Events.SET_CONTRACT};
-    }
-
-    public static Object[] setRowNumberButton()
-    {
-        return new Object[]{"Указать номер строки", Events.SET_ROW_NUMBER};
-    }
-
-    public static Object[] startScan()
-    {
-        return new Object[]{"Начать", Events.START_SCAN};
+        return new Object[]{Emoji.reload() + " Обновить данные", Events.MAIN_MENU};
     }
 }

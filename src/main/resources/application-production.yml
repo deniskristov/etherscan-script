@@ -1,9 +1,9 @@
 etherscan:
   selenium:
-    remoteWebDriverUrl: http://localhost:4444
+    remoteWebDriverUrl: http://selenium:4444
 bot:
-  token: 5517606328:AAEeDpue6igYGkNjLdADQX1In_fFpo-n0j4
-  username: etherscan_test_bot
+  token: 5585724218:AAGvPZFL2tGu-GOhYMBnHO4nWvstgkLwqqM
+  username: etherscan_script_bot
 spring:
   web:
     resources:
@@ -13,7 +13,7 @@ spring:
 # = Data Source
 # ==============================================================
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/etherscan?useSSL=true&characterEncoding=utf-8&serverTimezone=Europe/Kiev&useLegacyDatetimeCode=false
+    url: jdbc:mysql://mysql:3306/etherscan?useSSL=true&characterEncoding=utf-8&serverTimezone=Europe/Kiev&useLegacyDatetimeCode=false
     username: root
     password: siden123
     driverClassName: com.mysql.cj.jdbc.Driver

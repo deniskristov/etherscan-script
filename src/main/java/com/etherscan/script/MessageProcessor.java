@@ -34,7 +34,7 @@ public class MessageProcessor
             {
                 stateMachine.sendEvent(Events.MAIN_MENU);
             }
-            if (update.hasCallbackQuery())
+            else if (update.hasCallbackQuery())
             {
                 stateMachine.sendEvent(
                     MessageBuilder

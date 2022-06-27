@@ -42,10 +42,10 @@ class ScriptApplicationTests {
 //	}
 
 
-	@Test
-	void extractUrls() {
-		String answer = "[ tokenURI(uint256) method Response ]\n" +
-			"    string :  https://api.otherside.xyz/lands/15";
-		Assertions.assertEquals("https://api.otherside.xyz/lands/15", UrlUtils.extract(answer).get(0));
-	}
+//	@Test
+//	void extractUrls() {
+//		String answer = "[ tokenURI(uint256) method Response ]\n" +
+//			"    string :  https://api.otherside.xyz/lands/15";
+//		Assertions.assertEquals("https://api.otherside.xyz/lands/15", UrlUtils.extract(answer).get(0));
+//	}
 }
