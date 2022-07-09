@@ -57,6 +57,7 @@ public class EtherscanScheduledJob
                 try
                 {
                     webDriver.switchTo().window(windows.get(contract.getId()));
+                    Thread.sleep(3000);
                     Integer rowNumber = contract.getLineNumber();
                     Optional<String> parsedUrl = SeleniumUtils.updateUri(webDriver, rowNumber);
                     long end = System.currentTimeMillis();
