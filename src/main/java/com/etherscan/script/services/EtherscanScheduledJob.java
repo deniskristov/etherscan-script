@@ -66,7 +66,10 @@ public class EtherscanScheduledJob
                     String existingUrl = contract.getUrl();
                     if (parsedUrl.isPresent())
                     {
-                        errorCount = 0;
+                        if (errorCount > 0)
+                        {
+                            errorCount = 0;
+                        }
                         if (!contract.isSuccessLastUpdate())
                         {
                             contract.setSuccessLastUpdate(true);
