@@ -8,11 +8,12 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.net.URL;
+import java.util.Optional;
 
 @Slf4j
 public class SeleniumUtils
 {
-    public static String findUrl(WebDriver driver, Integer rowNumber) {
+    public static Optional<String> findUriFirstTime(WebDriver driver, Integer rowNumber) {
         WebElement element = null;
         try
         {
@@ -27,7 +28,26 @@ public class SeleniumUtils
         {
             log.error("WebDriver ERROR:", e);
         }
-        return element == null ? "" : UrlUtils.extract(element.getText()).get(0);
+        return element == null
+            ? Optional.empty()
+            : UrlUtils.extractUri(element.getText());
+    }
+
+    public static Optional<String> updateUri(WebDriver driver, Integer rowNumber) {
+        WebElement element = null;
+        try
+        {
+            driver.findElement(By.id("btn_" + rowNumber)).click();
+            Thread.sleep(3000);
+            element = driver.findElement(By.id("myanswer_" + rowNumber));
+        }
+        catch (Exception e)
+        {
+            log.error("WebDriver ERROR:", e);
+        }
+        return element == null
+            ? Optional.empty()
+            : UrlUtils.extractUri(element.getText());
     }
 
     public static WebDriver create(String remoteWebDriverUrl) {

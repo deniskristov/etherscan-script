@@ -42,10 +42,34 @@ class ScriptApplicationTests {
 //	}
 
 
-//	@Test
-//	void extractUrls() {
-//		String answer = "[ tokenURI(uint256) method Response ]\n" +
-//			"    string :  https://api.otherside.xyz/lands/15";
-//		Assertions.assertEquals("https://api.otherside.xyz/lands/15", UrlUtils.extract(answer).get(0));
-//	}
+	@Test
+	void extractUriHttp() {
+		String answer = "[ tokenURI(uint256) method Response ]\n" +
+			"    string :  https://api.otherside.xyz/lands/15";
+		Assertions.assertEquals("https://api.otherside.xyz/lands/15", UrlUtils.extractUri(answer).get());
+	}
+
+	@Test
+	void extractUriNonHttp() {
+		String answer = " string\n" +
+            "\n" +
+            "[ tokenURI(uint256) method Response ]\n" +
+            "    string : ipfs://QmfZNoPiSfyYjruksDzTn8VSDpYsCjUkYXGpeeYCtpSTfp/12";
+		Assertions.assertEquals("ipfs://QmfZNoPiSfyYjruksDzTn8VSDpYsCjUkYXGpeeYCtpSTfp/12", UrlUtils.extractUri(answer).get());
+	}
+
+	@Test
+	void extractUriErrorPattern() {
+		String answer = " string\n" +
+			"\n" +
+			"[ tokenURI(uint256) method Response ]\n" +
+			"    : ipfs://QmfZNoPiSfyYjruksDzTn8VSDpYsCjUkYXGpeeYCtpSTfp/12";
+		Assertions.assertTrue(UrlUtils.extractUri(answer).isEmpty());
+	}
+
+	@Test
+	void extractUriError() {
+		String answer = "Error: Invalid JSON RPC response: \"\"";
+		Assertions.assertTrue(UrlUtils.extractUri(answer).isEmpty());
+	}
 }

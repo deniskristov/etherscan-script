@@ -33,12 +33,16 @@ public class MainMenuAction extends AbstractTelegramAction
         scheduledJob.contractsInProcess().forEach(contractId -> {
             Contract contract = contractRepository.findById(contractId).get();
             text
+                .append(Emoji.clipboard() + " ").append(contract.getName()).append("\n");
+            text
                 .append(Emoji.memo() + " ").append(contract.getContract()).append("\n");
+            text
+                .append("Последнее обновление: \n");
 
             if (contract.getLastUpdated() != null)
             {
-                text.append(Emoji.calendar() + " ").append(
-                    DateUtils.format(contract.getLastUpdated(), DateUtils.DATE_TIME_FORMAT_GENERAL)).append(" (последнее обновление)").append("\n");
+                text.append(contract.isSuccessLastUpdate() ? Emoji.checkBoxOk() : Emoji.crossMark()).append(
+                    DateUtils.format(contract.getLastUpdated(), DateUtils.DATE_TIME_FORMAT_GENERAL)).append("\n");
             }
             String url = contract.getUrl();
             if (StringUtils.hasText(url))

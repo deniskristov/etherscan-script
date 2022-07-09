@@ -3,27 +3,19 @@ package com.etherscan.script.services;
 import com.etherscan.script.entities.Contract;
 import com.etherscan.script.event.events.UrlChangedEvent;
 import com.etherscan.script.repositories.ContractRepository;
-import com.etherscan.script.statemachine.Events;
-import com.etherscan.script.statemachine.Headers;
-import com.etherscan.script.statemachine.StateMachinesHolder;
 import com.etherscan.script.utils.SeleniumUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.WebDriver;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.openqa.selenium.WindowType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PreDestroy;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -31,106 +23,137 @@ import java.util.stream.Collectors;
 @Slf4j
 public class EtherscanScheduledJob
 {
-    @Autowired
-    @Lazy
-    private StateMachinesHolder stateMachinesHolder;
     private final ContractRepository contractRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final static int MAX_ERROR_COUNT = 5;
 
     @Value("${etherscan.selenium.remoteWebDriverUrl}")
     private String remoteWebDriverUrl;
 
-    private Map<Integer, WebDriver> drivers = new HashMap<>();
+    private WebDriver webDriver = null;
+    private Map<Integer, String> windows = new HashMap<>();
+    private Integer errorCount = 0;
 
     @Scheduled(fixedDelay = 10000)
     public void scan(){
+        if (errorCount > MAX_ERROR_COUNT) {
+            log.error("MAX_ERROR limit is exseeded, resetting web driver.");
+            webDriver = null;
+            windows.clear();
+        }
+        if (webDriver == null) {
+            createDriver();
+        }
+        if (webDriver == null) {
+            return;
+        }
         List<Contract> enabledContracts = contractRepository.findAllByEnabledIsTrue();
         stopRemovedContracts(enabledContracts);
         enabledContracts.forEach(contract ->
         {
-            if (drivers.containsKey(contract.getId())) {
+            if (windows.containsKey(contract.getId())) {
                 log.info("Starting etherscan parsing. Contract {}", contract);
                 long start = System.currentTimeMillis();
-                WebDriver driver = drivers.get(contract.getId());
                 try
                 {
+                    webDriver.switchTo().window(windows.get(contract.getId()));
                     Integer rowNumber = contract.getLineNumber();
-                    driver.navigate().refresh();
-                    Thread.sleep(3000);
-                    String parsedUrl = SeleniumUtils.findUrl(driver, rowNumber);
+                    Optional<String> parsedUrl = SeleniumUtils.updateUri(webDriver, rowNumber);
                     long end = System.currentTimeMillis();
                     long duration = end - start;
-                    log.info("Completed etherscan parsing. Duration: {} ms., Contract: {}, Parsed yfvURL: {}", duration, contract, parsedUrl);
+                    log.info("Completed etherscan parsing. Duration: {} ms., Contract: {}, Parsed URL: {}", duration, contract, parsedUrl.orElse("parsing error"));
                     String existingUrl = contract.getUrl();
-                    if (StringUtils.hasText(parsedUrl) && !parsedUrl.equals(existingUrl)) {
-                        contract.setUrl(parsedUrl);
-                        contractRepository.save(contract);
-                        if (StringUtils.hasText(existingUrl))
+                    if (parsedUrl.isPresent())
+                    {
+                        errorCount = 0;
+                        if (!contract.isSuccessLastUpdate())
                         {
-                            applicationEventPublisher.publishEvent(
-                                UrlChangedEvent.builder()
-                                    .newUrl(parsedUrl)
-                                    .contract(contract.getContract())
-                                    .build());
+                            contract.setSuccessLastUpdate(true);
+                            contractRepository.save(contract);
                         }
+                        if (!parsedUrl.get().equals(existingUrl))
+                        {
+                            contract.setUrl(parsedUrl.get());
+                            contractRepository.save(contract);
+                            if (StringUtils.hasText(existingUrl))
+                            {
+                                applicationEventPublisher.publishEvent(
+                                    UrlChangedEvent.builder()
+                                        .newUrl(parsedUrl.get())
+                                        .contract(Contract.Dto.fromEntity(contract))
+                                        .build());
+                            }
+                        }
+                    }
+                    else
+                    {
+                        contract.setSuccessLastUpdate(false);
+                        contractRepository.save(contract);
                     }
                 }
                 catch (Exception e)
                 {
-                    contract.setUrl("");
+                    errorCount++;
+                    contract.setSuccessLastUpdate(false);
                     contractRepository.save(contract);
-                    driver.quit();
-                    drivers.remove(contract.getId());
-                    log.error("Error refreshing contract " + contract, e);
-//                    stateMachinesHolder.sendToAll(MessageBuilder
-//                        .withPayload(Events.ERROR_NOTIFICATION)
-//                        .setHeader(Headers.PAYLOAD.toString(), e.toString())
-//                        .setHeader(Headers.CONTRACT.toString(), contract)
-//                        .build());
+                    log.error("Error reading contract " + contract, e);
                 }
-
             } else {
-                log.info("Creating new driver. URL: {} Contract: {}", remoteWebDriverUrl, contract);
-                WebDriver webDriver = null;
                 try
                 {
-                    webDriver = SeleniumUtils.create(remoteWebDriverUrl);
+                    log.info("Open new window. Contract: {}",  contract);
+                    webDriver.switchTo().newWindow(WindowType.TAB);
                     webDriver.get(String.format("https://etherscan.io/readContract?m=normal&a=%s&v=%s", contract.getContract(), contract.getContract()));
-                    drivers.put(contract.getId(), webDriver);
+                    Optional<String> parsedUrl = SeleniumUtils.findUriFirstTime(webDriver, contract.getLineNumber());
+                    contract.setSuccessLastUpdate(true);
+                    contract.setUrl(parsedUrl.get());
+                    contractRepository.save(contract);
+                    windows.put(contract.getId(), webDriver.getWindowHandle());
                 }
-                catch (Exception e) {
-                    if (webDriver != null) {
-                        webDriver.quit();
-                    }
-                    log.error("Error creating web driver contract " + contract, e);
-                    stateMachinesHolder.sendToAll(MessageBuilder
-                        .withPayload(Events.ERROR_NOTIFICATION)
-                        .setHeader(Headers.PAYLOAD.toString(), e.toString())
-                        .setHeader(Headers.CONTRACT.toString(), contract)
-                        .build());
+                catch (Exception e)
+                {
+                    errorCount++;
+                    log.error("Error opening new window " + contract, e);
                 }
             }
         });
     }
 
     public Set<Integer> contractsInProcess() {
-        return drivers.keySet();
+        return windows.keySet();
+    }
+
+    private void createDriver() {
+        try
+        {
+            webDriver = SeleniumUtils.create(remoteWebDriverUrl);
+        }
+        catch (Exception e) {
+            if (webDriver != null) {
+                webDriver.quit();
+                webDriver = null;
+            }
+            log.error("Error creating web driver", e);
+        }
     }
 
     @PreDestroy
     public void stop()
     {
-        drivers.forEach((id, driver) -> driver.quit());
+        if (webDriver != null) {
+            webDriver.quit();
+        }
     }
 
     private void stopRemovedContracts(List<Contract> enabledContracts)
     {
         Set<Integer> enabledContractsId = enabledContracts.stream().map(Contract::getId).collect(Collectors.toSet());
-        drivers.forEach((id, driver) ->
+        windows.forEach((id, windowName) ->
         {
             if (!enabledContractsId.contains(id)) {
-                driver.quit();
-                drivers.remove(id);
+                webDriver.switchTo().window(windowName);
+                webDriver.close();
+                windows.remove(id);
             }
         });
     }

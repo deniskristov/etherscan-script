@@ -1,5 +1,6 @@
 package com.etherscan.script.event.events;
 
+import com.etherscan.script.entities.Contract;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -8,5 +9,5 @@ import lombok.Getter;
 public class UrlChangedEvent
 {
     private String newUrl;
-    private String contract;
+    private Contract.Dto contract;
 }

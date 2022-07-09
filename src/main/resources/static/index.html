@@ -35,9 +35,17 @@
                 },
                 "aoColumns": [
                     {sTitle: "id", mData: "id", bSortable: false, sClass: "id hidden"},
+                    {sTitle: "Название", mData: "name", bSortable: false},
                     {sTitle: "Контракт", mData: "contract", bSortable: false},
                     {sTitle: "Номер строки", mData: "row", bSortable: false},
                     {sTitle: "URL", mData: "url", bSortable: false},
+                    {
+                        sTitle: "Статус последнего обновления", mData: "successLastUpdate", bSortable: false, "className": "text-center",
+                        "render": function (data, type, row, meta) {
+                            var icon = data === true ? "bi-check-square" : "bi-emoji-frown";
+                            return "<i  class=\"bi " + icon + "\"></i>";
+                        }
+                    },
                     {sTitle: "Последнее обновление", mData: "lastUpdated", bSortable: false},
                     {
                         sTitle: "Действие", mData: "enabled",
@@ -156,7 +164,10 @@
             </div>
             <form id="createContractForm">
             <div class="modal-body">
-
+                <div class="mb-3">
+                    <label for="nameInput" class="form-label">Название контракта</label>
+                    <input name="name" type="text" class="form-control" id="nameInput">
+                </div>
                 <div class="mb-3">
                     <label for="contractInput" class="form-label">Номер контракта</label>
                     <input name="contract" type="text" class="form-control" id="contractInput">

@@ -1,5 +1,6 @@
 package com.etherscan.script.statemachine.actions.gui;
 
+import com.etherscan.script.entities.Contract;
 import com.etherscan.script.statemachine.Events;
 import com.etherscan.script.statemachine.Headers;
 import com.etherscan.script.statemachine.States;
@@ -21,8 +22,10 @@ public class UrlUpdateNotification extends AbstractTelegramAction
         SendMessage linkMessage = new SendMessage();
         linkMessage.enableMarkdown(true);
         linkMessage.setChatId(StateContextHelper.getChatId(stateContext).toString());
+        Contract.Dto contract = HeaderHelper.getContract(stateContext);
         linkMessage.setText(Emoji.heavyCheckMark() + " Внимание! Изменилась ссылка\n" +
-            Emoji.memo() + " Контракт: " + HeaderHelper.getAsString(stateContext, Headers.CONTRACT) + "\n" +
+            Emoji.clipboard() + contract.getName() + "\n" +
+            Emoji.memo() + " Контракт: " + contract.getContract() + "\n" +
             HeaderHelper.getAsString(stateContext, Headers.PAYLOAD)
         );
         execute(linkMessage);
