@@ -9,6 +9,9 @@ spring:
     resources:
      static-locations[0]: file:src/main/resources/static/
      static-locations[1]: classpath:/static/
+  data:
+    mongodb:
+      uri: mongodb+srv://m001-student:siden123@cluster0-demsv.mongodb.net/etherscan?retryWrites=true&w=majority
 # ==============================================================
 # = Data Source
 # ==============================================================

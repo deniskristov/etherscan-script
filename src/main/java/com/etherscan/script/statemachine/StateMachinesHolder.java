@@ -1,12 +1,13 @@
 package com.etherscan.script.statemachine;
 
+import com.etherscan.script.mongo.repositories.StateMachineRepository;
 import com.etherscan.script.utils.StateContextVariables;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
-import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.StateMachineFactory;
+import org.springframework.statemachine.persist.StateMachinePersister;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
@@ -17,8 +18,10 @@ import java.util.Map;
 @Slf4j
 public class StateMachinesHolder
 {
-//    @Autowired
-//    private StateMachinePersister<States, Events, Long> stateMachinePersister;
+    @Autowired
+    private StateMachineRepository stateMachineRepository;
+    @Autowired
+    private StateMachinePersister<States, Events, Long> stateMachinePersister;
     @Autowired
     private StateMachineFactory<States, Events> stateMachineFactory;
 
@@ -43,8 +46,7 @@ public class StateMachinesHolder
         {
             try
             {
-//                stateMachinePersister.restore(stateMachine, chatId);
-                stateMachine.start();
+                stateMachinePersister.restore(stateMachine, chatId);
             }
             catch (Exception e)
             {
@@ -66,7 +68,7 @@ public class StateMachinesHolder
             {
                 StateMachine stateMachine = entry.getValue();
                 beforeSave(stateMachine);
-//                stateMachinePersister.persist(stateMachine, entry.getKey());
+                stateMachinePersister.persist(stateMachine, entry.getKey());
             }
             catch (Exception e)
             {
@@ -77,7 +79,9 @@ public class StateMachinesHolder
 
     public void sendToAll(Message message)
     {
-        stateMachineMap.values().forEach(stateMachine -> {
+        stateMachineRepository.findAll().forEach(mongoDbRepositoryStateMachine ->
+        {
+            StateMachine stateMachine = getOrStart(Long.valueOf(mongoDbRepositoryStateMachine.getId()), true);
             stateMachine.sendEvent(message);
         });
     }
