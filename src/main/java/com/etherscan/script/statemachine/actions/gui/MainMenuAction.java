@@ -1,8 +1,8 @@
 package com.etherscan.script.statemachine.actions.gui;
 
 import com.etherscan.script.entities.Contract;
+import com.etherscan.script.jobs.EtherscanScheduledJob;
 import com.etherscan.script.repositories.ContractRepository;
-import com.etherscan.script.services.EtherscanScheduledJob;
 import com.etherscan.script.statemachine.Events;
 import com.etherscan.script.statemachine.States;
 import com.etherscan.script.utils.*;
@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 @Component

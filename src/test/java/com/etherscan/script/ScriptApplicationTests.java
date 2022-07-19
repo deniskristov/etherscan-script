@@ -1,21 +1,15 @@
 package com.etherscan.script;
 
 import com.etherscan.script.utils.UrlUtils;
-import com.gargoylesoftware.htmlunit.Page;
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.springframework.util.Assert;
 
-import javax.xml.bind.SchemaOutputResolver;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 class ScriptApplicationTests {
 
@@ -71,5 +65,37 @@ class ScriptApplicationTests {
 	void extractUriError() {
 		String answer = "Error: Invalid JSON RPC response: \"\"";
 		Assertions.assertTrue(UrlUtils.extractUri(answer).isEmpty());
+	}
+
+	@Test
+	void cutNumbers()
+	{
+		Assertions.assertEquals("https://api.gossamer.world/api/nft/",
+			UrlUtils.cutNumbers("https://api.gossamer.world/api/nft/30"));
+	}
+
+
+	void urlParserTest() throws IOException, InterruptedException
+	{
+		HttpClient httpClient = HttpClient.newHttpClient();
+		HttpRequest.Builder request = HttpRequest.newBuilder()
+			.GET()
+			.uri(URI.create("https://api.gossamer.world/api/nft/30"));
+		HttpResponse<String> response = httpClient.send(request.build(), HttpResponse.BodyHandlers.ofString());
+		if (response.statusCode() == HttpURLConnection.HTTP_OK)
+		{
+			if (response.body().contains("trait_type"))
+			{
+				System.out.println("Found");
+			}
+			else
+			{
+				System.out.println("Not found");
+			}
+		}
+		else
+		{
+			System.out.println("HTTP error: " + response.statusCode());
+		}
 	}
 }

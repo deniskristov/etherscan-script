@@ -1,4 +1,4 @@
-package com.etherscan.script.services;
+package com.etherscan.script.jobs;
 
 import com.etherscan.script.entities.Contract;
 import com.etherscan.script.event.events.UrlChangedEvent;
@@ -35,11 +35,18 @@ public class EtherscanScheduledJob
     private Integer errorCount = 0;
 
     @Scheduled(fixedDelay = 10000)
+    public void test(){
+
+    }
+
+    @Scheduled(fixedDelay = 10000)
     public void scan(){
         if (errorCount > MAX_ERROR_COUNT) {
             log.error("MAX_ERROR limit is exseeded, resetting web driver.");
+            webDriver.quit();
             webDriver = null;
             windows.clear();
+            errorCount = 0;
         }
         if (webDriver == null) {
             createDriver();

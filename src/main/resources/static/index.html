@@ -38,6 +38,9 @@
                     {sTitle: "Название", mData: "name", bSortable: false},
                     {sTitle: "Контракт", mData: "contract", bSortable: false},
                     {sTitle: "Номер строки", mData: "row", bSortable: false},
+                    {sTitle: "Ключевое слово", mData: "keyWord", bSortable: false},
+                    {sTitle: "Начало диапазона", mData: "start", bSortable: false},
+                    {sTitle: "Конец диапазаона", mData: "end", bSortable: false},
                     {sTitle: "URL", mData: "url", bSortable: false},
                     {
                         sTitle: "Статус последнего обновления", mData: "successLastUpdate", bSortable: false, "className": "text-center",
@@ -175,6 +178,18 @@
                 <div class="mb-3">
                     <label for="rowInput" class="form-label">Номер строки</label>
                     <input name="row" type="number" class="form-control" id="rowInput">
+                </div>
+                <div class="mb-3">
+                    <label for="rowKeyWord" class="form-label">Ключевое слово</label>
+                    <input name="keyWord" type="text" class="form-control" id="rowKeyWord">
+                </div>
+                <div class="mb-3">
+                    <label for="start" class="form-label">Начало диапазона</label>
+                    <input name="start" type="number" class="form-control" id="start">
+                </div>
+                <div class="mb-3">
+                    <label for="end" class="form-label">Конец диапазона</label>
+                    <input name="end" type="number" class="form-control" id="end">
                 </div>
             </div>
             <div class="modal-footer">

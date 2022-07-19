@@ -27,6 +27,9 @@ public class Contract
     private Date lastUpdated;
     private boolean enabled;
     private boolean isSuccessLastUpdate;
+    private String keyWord;
+    private Integer start;
+    private Integer end;
 
     @Data
     public static class Dto
@@ -39,6 +42,9 @@ public class Contract
         private Integer row;
         private boolean enabled;
         private boolean successLastUpdate;
+        private String keyWord;
+        private Integer start;
+        private Integer end;
 
         public static Dto fromEntity(Contract contract)
         {
@@ -53,6 +59,9 @@ public class Contract
             dto.setLastUpdated(contract.getLastUpdated() != null
                 ? DateUtils.format(contract.getLastUpdated(), DATE_TIME_FORMAT_GENERAL)
                 : "");
+            dto.setKeyWord(contract.getKeyWord());
+            dto.setStart(contract.getStart());
+            dto.setEnd(contract.getEnd());
             return dto;
         }
 
@@ -64,6 +73,9 @@ public class Contract
             contract.setLineNumber(getRow());
             contract.setName(getName());
             contract.setSuccessLastUpdate(false);
+            contract.setKeyWord(getKeyWord());
+            contract.setStart(getStart());
+            contract.setEnd(getEnd());
             return contract;
         }
     }

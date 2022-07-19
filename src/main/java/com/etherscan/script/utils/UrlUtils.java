@@ -35,4 +35,8 @@ public class UrlUtils
             return Optional.empty();
         }
     }
+
+    public static String cutNumbers(String url) {
+        return url.substring(0, url.lastIndexOf('/') + 1);
+    }
 }

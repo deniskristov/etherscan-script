@@ -1,6 +1,10 @@
 package com.etherscan.script.statemachine;
 
-import com.etherscan.script.statemachine.actions.gui.*;
+import com.etherscan.script.statemachine.actions.gui.ContractRequestAction;
+import com.etherscan.script.statemachine.actions.gui.MainMenuAction;
+import com.etherscan.script.statemachine.actions.gui.notification.ErrorNotificationAction;
+import com.etherscan.script.statemachine.actions.gui.notification.KeyWordsFoundNotification;
+import com.etherscan.script.statemachine.actions.gui.notification.UrlUpdateNotification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
@@ -13,7 +17,7 @@ public class StateMachineConfiguration extends StateMachineConfigurerAdapter<Sta
 {
     private final MainMenuAction mainMenuAction;
     private final ContractRequestAction contractRequestAction;
-    private final RowNumbersRequestAction rowNumbersRequestAction;
+    private final KeyWordsFoundNotification keyWordsFoundNotification;
     private final UrlUpdateNotification urlUpdateNotification;
     private final ErrorNotificationAction errorNotificationAction;
 
@@ -41,6 +45,11 @@ public class StateMachineConfiguration extends StateMachineConfigurerAdapter<Sta
                 .source(States.MAIN_MENU)
                 .event(Events.URL_UPDATE_NOTIFICATION)
                 .action(urlUpdateNotification)
+                .and()
+            .withInternal()
+                .source(States.MAIN_MENU)
+                .event(Events.KEY_WORDS_FOUND_NOTIFICATION)
+                .action(keyWordsFoundNotification)
                 .and()
             .withInternal()
                 .source(States.MAIN_MENU)
