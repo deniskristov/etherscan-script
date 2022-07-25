@@ -1,6 +1,5 @@
 package com.etherscan.script.statemachine;
 
-import com.etherscan.script.statemachine.actions.gui.ContractRequestAction;
 import com.etherscan.script.statemachine.actions.gui.MainMenuAction;
 import com.etherscan.script.statemachine.actions.gui.notification.ErrorNotificationAction;
 import com.etherscan.script.statemachine.actions.gui.notification.KeyWordsFoundNotification;
@@ -16,7 +15,6 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 public class StateMachineConfiguration extends StateMachineConfigurerAdapter<States, Events>
 {
     private final MainMenuAction mainMenuAction;
-    private final ContractRequestAction contractRequestAction;
     private final KeyWordsFoundNotification keyWordsFoundNotification;
     private final UrlUpdateNotification urlUpdateNotification;
     private final ErrorNotificationAction errorNotificationAction;
