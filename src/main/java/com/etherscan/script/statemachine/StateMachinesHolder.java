@@ -79,7 +79,12 @@ public class StateMachinesHolder
 
     public void sendToAll(Message message)
     {
-        stateMachineRepository.findAll().forEach(mongoDbRepositoryStateMachine ->
+        stateMachineMap.keySet().forEach(chatId -> {
+            stateMachineMap.get(chatId).sendEvent(message);
+        });
+        stateMachineRepository.findAll().stream()
+            .filter(mongoDbRepositoryStateMachine -> !stateMachineMap.containsKey(Long.valueOf(mongoDbRepositoryStateMachine.getId())))
+            .forEach(mongoDbRepositoryStateMachine ->
         {
             StateMachine stateMachine = getOrStart(Long.valueOf(mongoDbRepositoryStateMachine.getId()), true);
             stateMachine.sendEvent(message);

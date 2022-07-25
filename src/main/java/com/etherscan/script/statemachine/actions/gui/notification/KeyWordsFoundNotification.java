@@ -12,6 +12,8 @@ import org.springframework.statemachine.StateContext;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
+import java.util.List;
+
 @Component
 public class KeyWordsFoundNotification extends AbstractTelegramAction
 {
@@ -22,11 +24,20 @@ public class KeyWordsFoundNotification extends AbstractTelegramAction
         linkMessage.enableMarkdown(true);
         linkMessage.setChatId(StateContextHelper.getChatId(stateContext).toString());
         Contract.Dto contract = HeaderHelper.getContract(stateContext);
-        linkMessage.setText(
-            Emoji.clipboard() + contract.getName() + "\n" +
-            Emoji.heavyCheckMark() + " Ключевое слово " + contract.getKeyWord() + " найдено в номерах:\n" +
-            HeaderHelper.getAsListInteger(stateContext, Headers.PAYLOAD)
-        );
+        List<Integer> foundInNumbers = HeaderHelper.getAsListInteger(stateContext, Headers.PAYLOAD);
+        if (foundInNumbers.size() > 0)
+        {
+            linkMessage.setText(
+                Emoji.clipboard() + contract.getName() + "\n" +
+                    Emoji.heavyCheckMark() + " Ключевое слово " + contract.getKeyWord() + " найдено в номерах:\n" +
+                    foundInNumbers.toString());
+        }
+        else
+        {
+            linkMessage.setText(
+                Emoji.clipboard() + contract.getName() + "\n" +
+                    Emoji.crossMark() + " Ключевое слово " + contract.getKeyWord() + " не найдено во всем диапазоне");
+        }
         execute(linkMessage);
     }
 }

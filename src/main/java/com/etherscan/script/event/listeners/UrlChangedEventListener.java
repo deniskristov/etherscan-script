@@ -27,6 +27,7 @@ public class UrlChangedEventListener
             .setHeader(Headers.PAYLOAD.toString(), event.getNewUrl())
             .setHeader(Headers.CONTRACT.toString(), event.getContract())
             .build());
+        // TODO move to a separate async listener
         List<Integer> numbersWithKeyWords
             = urlParserService.findKeyWordsFromStartToEnd(event.getNewUrl(), event.getContract().getKeyWord(),
             event.getContract().getStart(), event.getContract().getEnd());

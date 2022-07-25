@@ -3,7 +3,6 @@ package com.etherscan.script;
 import com.etherscan.script.statemachine.Events;
 import com.etherscan.script.statemachine.Headers;
 import com.etherscan.script.statemachine.StateMachinesHolder;
-import com.etherscan.script.statemachine.States;
 import com.etherscan.script.utils.EventUtils;
 import com.etherscan.script.utils.LogDataHelper;
 import lombok.RequiredArgsConstructor;
@@ -30,11 +29,7 @@ public class MessageProcessor
             LogDataHelper.putChatId(chatId);
             StateMachine stateMachine = stateMachinesHolder.getOrStart(chatId, true);
             LogDataHelper.putSate(stateMachine.getState());
-            if (stateMachine.getState().getId() == States.INITIAL)
-            {
-                stateMachine.sendEvent(Events.MAIN_MENU);
-            }
-            else if (update.hasCallbackQuery())
+            if (update.hasCallbackQuery())
             {
                 stateMachine.sendEvent(
                     MessageBuilder
@@ -44,31 +39,9 @@ public class MessageProcessor
                         .build()
                 );
             }
-            else if (update.getMessage().hasText())
+            else
             {
-                // TODO refactor this (get actions by state?)
-                if (stateMachine.getState().getId() == States.SET_CONTRACT)
-                {
-                    stateMachine.sendEvent(
-                        MessageBuilder
-                            .withPayload(Events.CONTRACT_RECEIVED)
-                            .setHeader(Headers.PAYLOAD.toString(), update.getMessage().getText().trim())
-                            .build()
-                    );
-                }
-                else if (stateMachine.getState().getId() == States.SET_ROW_NUMBER)
-                {
-                    stateMachine.sendEvent(
-                        MessageBuilder
-                            .withPayload(Events.ROW_NUMBER_RECEIVED)
-                            .setHeader(Headers.PAYLOAD.toString(), update.getMessage().getText().trim())
-                            .build()
-                    );
-                }
-                else
-                {
-                    stateMachine.sendEvent(Events.MAIN_MENU);
-                }
+                stateMachine.sendEvent(Events.MAIN_MENU);
             }
         }
         finally

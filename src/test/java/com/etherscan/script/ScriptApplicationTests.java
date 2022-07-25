@@ -68,10 +68,30 @@ class ScriptApplicationTests {
 	}
 
 	@Test
+	void buildUrl()
+	{
+		Assertions.assertEquals("https://api.gossamer.world/api/nft/39",
+			UrlUtils.buildUrl("https://api.gossamer.world/api/nft/30", 39));
+		Assertions.assertEquals("https://ks-genesis-drop.s3.amazonaws.com/ks-metadata/39.json",
+			UrlUtils.buildUrl("https://ks-genesis-drop.s3.amazonaws.com/ks-metadata/30.json", 39));
+	}
+
+	@Test
 	void cutNumbers()
 	{
 		Assertions.assertEquals("https://api.gossamer.world/api/nft/",
 			UrlUtils.cutNumbers("https://api.gossamer.world/api/nft/30"));
+		Assertions.assertEquals("https://ks-genesis-drop.s3.amazonaws.com/ks-metadata/",
+			UrlUtils.cutNumbers("https://ks-genesis-drop.s3.amazonaws.com/ks-metadata/30.json"));
+	}
+
+	@Test
+	void parseExtension()
+	{
+		Assertions.assertEquals("",
+			UrlUtils.parseExtension("https://api.gossamer.world/api/nft/30"));
+		Assertions.assertEquals("json",
+			UrlUtils.parseExtension("https://ks-genesis-drop.s3.amazonaws.com/ks-metadata/30.json"));
 	}
 
 

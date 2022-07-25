@@ -21,10 +21,9 @@ public class UrlService
     public List<Integer> findKeyWordsFromStartToEnd(String url, String keyWord, Integer start, Integer end)
     {
         List<Integer> result = new ArrayList<>();
-        String noNumbersUrl = UrlUtils.cutNumbers(url);
         for (int i = start; i < end + 1; i++)
         {
-            String urlToCheck = noNumbersUrl + i;
+            String urlToCheck = UrlUtils.buildUrl(url, i);
             try
             {
                 HttpRequest.Builder request = HttpRequest.newBuilder()

@@ -1,6 +1,7 @@
 package com.etherscan.script.utils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,5 +39,23 @@ public class UrlUtils
 
     public static String cutNumbers(String url) {
         return url.substring(0, url.lastIndexOf('/') + 1);
+    }
+
+    public static String parseExtension(String url) {
+        String path = url.substring(url.lastIndexOf('/') + 1);
+        if (path.contains(".")) {
+            return path.split("\\.")[1];
+        }
+        return "";
+    }
+
+    public static String buildUrl(String originalUrl, int number) {
+        String noNumbersUrl = cutNumbers(originalUrl);
+        String extension = parseExtension(originalUrl);
+        StringBuilder urlToCheck = new StringBuilder(noNumbersUrl).append(number);
+        if (StringUtils.hasText(extension)) {
+            urlToCheck.append(".").append(extension);
+        }
+        return urlToCheck.toString();
     }
 }
