@@ -1,6 +1,0 @@
-version: "3.9"
-services:
-  etherscan:
-    build:
-      context: .
-      dockerfile: etherscan.dockerfile
